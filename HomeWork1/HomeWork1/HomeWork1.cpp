@@ -1,8 +1,6 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
+
 using namespace std;
 using namespace cv;
     
@@ -76,9 +74,8 @@ int main()
 
     //modifying each pixel individually
     TickMeter timer2;
-    timer2.start();
     Mat eachPixelImage(400, 600, CV_8UC1);
-
+    timer2.start();
     for (int i = 0; i < 400; i++) {
         for (int j = 0; j < 600; j++) {
             eachPixelImage.at<uchar>(i, j) = saturate_cast<uchar>(pow(image.at<uchar>(i, j) / 255.0, gamma) * 255.0);
@@ -94,7 +91,38 @@ int main()
     //show the comparision result
     cout << "Look Up Table method required time: " << timer1.getTimeMilli() << "ms" << endl
         << "Modifying Each Pixel Individually required time: " << timer2.getAvgTimeMilli() << "ms" << endl;
-    waitKey();
+    //waitKey();
 
+
+
+
+    //draw  histograms for lookUpTableImage & eachPixelImage
+    MatND LUTHistogram, pixelHistogram;
+
+    calcHist(&lookUpTableImage, 1, 0, Mat(), LUTHistogram, 1, &number_bins, &channel_ranges);
+    calcHist(&eachPixelImage, 1, 0, Mat(), pixelHistogram, 1, &number_bins, &channel_ranges);
+
+
+    Mat LUTHistImage(hist_h, hist_w, CV_8UC1, Scalar(0, 0, 0)), pixelHistImage(hist_h, hist_w, CV_8UC1, Scalar(0, 0, 0));
+
+    
+    normalize(LUTHistogram, LUTHistogram, 0, LUTHistImage.rows, NORM_MINMAX, -1, Mat());
+    normalize(pixelHistogram, pixelHistogram, 0, pixelHistImage.rows, NORM_MINMAX, -1, Mat());
+
+
+    for (int i = 1; i < histSize; i++) {
+
+        line(LUTHistImage, Point(bin_w * (i - 1), hist_h - cvRound(LUTHistogram.at<float>(i - 1))),
+            Point(bin_w * i, hist_h - cvRound(LUTHistogram.at<float>(i))),
+            Scalar(255, 0, 0), 2, 8, 0);
+
+        line(pixelHistImage, Point(bin_w * (i - 1), hist_h - cvRound(pixelHistogram.at<float>(i - 1))),
+            Point(bin_w * i, hist_h - cvRound(pixelHistogram.at<float>(i))),
+            Scalar(255, 0, 0), 2, 8, 0);
+    }
+
+    imshow("LUT image histogram", LUTHistImage);
+    imshow("Each pixel image histogram", pixelHistImage);
+    waitKey();
     return 0;
 }
