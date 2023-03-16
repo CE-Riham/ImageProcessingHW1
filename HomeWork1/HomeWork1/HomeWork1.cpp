@@ -1,6 +1,8 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
-
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 using namespace std;
 using namespace cv;
     
@@ -52,6 +54,9 @@ int main()
     imshow("histogram", histImage);
     waitKey();
 
+
+    imshow("image", image);
+    waitKey(0);
 
     return 0;
 }
