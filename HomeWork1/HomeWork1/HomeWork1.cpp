@@ -96,8 +96,5 @@ int main()
         << "Modifying Each Pixel Individually required time: " << timer2.getAvgTimeMilli() << "ms" << endl;
     waitKey();
 
-    imshow("image", image);
-    waitKey(0);
-
     return 0;
 }
