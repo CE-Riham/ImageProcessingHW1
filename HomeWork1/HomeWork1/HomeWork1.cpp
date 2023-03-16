@@ -66,9 +66,15 @@ int main()
 
     //using look up table
     Mat lookUpTableImage;
+    TickMeter timer1;
+    timer1.start();
     LUT(image, lookupTable, lookUpTableImage);
+    timer1.stop();
+
 
     //modifying each pixel individually
+    TickMeter timer2;
+    timer2.start();
     Mat eachPixelImage(400, 600, CV_8UC1);
 
     for (int i = 0; i < 400; i++) {
@@ -76,10 +82,16 @@ int main()
             eachPixelImage.at<uchar>(i, j) = saturate_cast<uchar>(pow(image.at<uchar>(i, j) / 255.0, gamma) * 255.0);
         }
     }
+    timer2.stop();
 
     //show the resultant images
     imshow("Look Up Table Image", lookUpTableImage);
     imshow("Each Pixel Individually Image", eachPixelImage);
+    //waitKey();
+
+    //show the comparision result
+    cout << "Look Up Table method required time: " << timer1.getTimeMilli() << "ms" << endl
+        << "Modifying Each Pixel Individually required time: " << timer2.getAvgTimeMilli() << "ms" << endl;
     waitKey();
 
     return 0;
