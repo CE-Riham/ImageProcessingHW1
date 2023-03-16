@@ -52,8 +52,37 @@ int main()
     }
 
     imshow("histogram", histImage);
-    waitKey();
+    //waitKey();
 
+    //modify the brightness using a random gamma
+    double gamma = rand() / 25.0;
+
+
+    Mat lookupTable(1, 256, CV_8U);
+    uchar* p = lookupTable.ptr();
+    for (int i = 0; i < 256; i++) {
+        //saturate_cast to clamp the resulting value correctly
+        //uchar range [0, 255]
+        p[i] = saturate_cast<uchar>(pow(i / 255.0, gamma) * 255.0);
+    }
+
+    //using look up table
+    Mat lookUpTableImage;
+    LUT(image, lookupTable, lookUpTableImage);
+
+    //modifying each pixel individually
+    Mat eachPixelImage(400, 600, CV_8UC1);
+
+    for (int i = 0; i < 400; i++) {
+        for (int j = 0; j < 600; j++) {
+            eachPixelImage.at<uchar>(i, j) = saturate_cast<uchar>(pow(image.at<uchar>(i, j) / 255.0, gamma) * 255.0);
+        }
+    }
+
+    //show the resultant images
+    imshow("Look Up Table Image", lookUpTableImage);
+    imshow("Each Pixel Individually Image", eachPixelImage);
+    waitKey();
 
     imshow("image", image);
     waitKey(0);
