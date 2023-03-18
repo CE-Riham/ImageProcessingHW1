@@ -6,27 +6,24 @@ using namespace cv;
     
 int main()
 {
-    //to show the image in grayscale
+    //to read the image in grayscale
     string path = "image.jpg";
     Mat image = imread(path, IMREAD_GRAYSCALE);
 
-    //resize the image (w, h)
+    //resize the image (w, h) and show it
     resize(image, image, Size(600, 400));
     imshow("Grayscale Image", image);
     //waitKey();
 
 
     //to make the histogram of the image
-    MatND histogram;
+    Mat histogram;
     int histSize = 256; //maximum value
-    const int* channel_numbers = { 0 }; //grayscale has a single channel
-    float channel_range[] = { 0.0, 256.0 };
-    const float* channel_ranges = channel_range;
-    int number_bins = histSize;
+    float channelRange[] = { 0.0, 256.0 };
+    const float* channelRangePTR = channelRange;
 
     //images, number of images, channels, mask, hist, dims, histSize, ranges, uniform = true, accumulate = false
-    //from opencv2/imgproc.hpp
-    calcHist(&image, 1, 0, Mat(), histogram, 1, &number_bins, &channel_ranges);
+    calcHist(&image, 1, 0, Mat(), histogram, 1, &histSize, &channelRangePTR);
 
     //to show the histogram
     int hist_w = 600, hist_h = 400;
@@ -43,13 +40,13 @@ int main()
 
     for (int i = 1; i < histSize; i++) {
 
-        //input image, point1, point2, scalar
+        //inputOutput image, point1, point2, color, thickness, lineType, shift
         line(histImage, Point(bin_w * (i - 1), hist_h - cvRound(histogram.at<float>(i - 1))),
             Point(bin_w * i, hist_h - cvRound(histogram.at<float>(i))),
-                Scalar(255, 0, 0), 2, 8, 0);
+                Scalar(255, 255, 255), 1, 16, 0);
     }
 
-    imshow("histogram", histImage);
+    imshow("Grayscale image histogram", histImage);
     //waitKey();
 
     //modify the brightness using a random gamma
@@ -90,17 +87,16 @@ int main()
 
     //show the comparision result
     cout << "Look Up Table method required time: " << timer1.getTimeMilli() << "ms" << endl
-        << "Modifying Each Pixel Individually required time: " << timer2.getAvgTimeMilli() << "ms" << endl;
+        << "Modifying Each Pixel Individually required time: " << timer2.getTimeMilli() << "ms" << endl;
     //waitKey();
-
 
 
 
     //draw  histograms for lookUpTableImage & eachPixelImage
     MatND LUTHistogram, pixelHistogram;
 
-    calcHist(&lookUpTableImage, 1, 0, Mat(), LUTHistogram, 1, &number_bins, &channel_ranges);
-    calcHist(&eachPixelImage, 1, 0, Mat(), pixelHistogram, 1, &number_bins, &channel_ranges);
+    calcHist(&lookUpTableImage, 1, 0, Mat(), LUTHistogram, 1, &histSize, &channelRangePTR);
+    calcHist(&eachPixelImage, 1, 0, Mat(), pixelHistogram, 1, &histSize, &channelRangePTR);
 
 
     Mat LUTHistImage(hist_h, hist_w, CV_8UC1, Scalar(0, 0, 0)), pixelHistImage(hist_h, hist_w, CV_8UC1, Scalar(0, 0, 0));
@@ -114,11 +110,11 @@ int main()
 
         line(LUTHistImage, Point(bin_w * (i - 1), hist_h - cvRound(LUTHistogram.at<float>(i - 1))),
             Point(bin_w * i, hist_h - cvRound(LUTHistogram.at<float>(i))),
-            Scalar(255, 0, 0), 2, 8, 0);
+            Scalar(255, 0, 0), 1, 16, 0);
 
         line(pixelHistImage, Point(bin_w * (i - 1), hist_h - cvRound(pixelHistogram.at<float>(i - 1))),
             Point(bin_w * i, hist_h - cvRound(pixelHistogram.at<float>(i))),
-            Scalar(255, 0, 0), 2, 8, 0);
+            Scalar(255, 0, 0), 1, 16, 0);
     }
 
     imshow("LUT image histogram", LUTHistImage);
